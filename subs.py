@@ -1,6 +1,7 @@
 from requests import get
 from bs4 import BeautifulSoup
 from fuzzywuzzy import process
+import os
 
 s_url = "https://subscene.com"
 
@@ -49,6 +50,35 @@ def get_sub_url(url, filename):
 	return s_url + subs[index].a.get("href")
 
 
+def download_sub(url):
+	base_url = get(url)
+	soup = BeautifulSoup(base_url.content, "html.parser")
+	d_url = s_url + soup.find("div", class_="download").a.get("href")
+
+
+	return d_url
+
+
+def scan_files(path):
+	files = []
+	for root, dirs, files in os.walk(path):
+		for file in files:
+
+			full_path = os.path.join(root, file)
+			cond = (file.endswith("mp4") or file.endswith("avi") or file.endswith("mkv")) \
+				   and (os.path.getsize(full_path) > 700000000)
+
+			if cond:
+				print file
+				files.append(file[:-4])
+	return files
+
+
+
 if __name__ == '__main__':
-	print get_sub_url("https://subscene.com/subtitles/the-conjuring-2-the-enfield-poltergeist",
-				  "The.Conjuring.2.2016.720p.BluRay.x265.ShAaNiG")
+	# print get_sub_url("https://subscene.com/subtitles/the-autopsy-of-jane-doe",
+	# 			  "The.Autopsy.of.Jane.Doe.2016.720p.WEB-DL.800MB.ShAaNiG")
+
+	# print download_sub("https://subscene.com/subtitles/the-autopsy-of-jane-doe/english/1469070")
+
+	scan_files("/home/drrid/freespace")
